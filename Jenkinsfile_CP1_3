@@ -1,0 +1,41 @@
+pipeline {
+    agent any
+
+    stages {
+        stage('Preparar Entorno') {
+            steps {
+                bat 'whoami'
+                bat 'hostname'
+                bat 'cd'
+            }
+        }
+
+        stage('Levantar API') {
+            steps {
+                echo 'Iniciando API en segundo plano...'
+                bat 'start /B py -m app.api'
+                sleep time: 10, unit: 'SECONDS'  // Da tiempo a que la API levante
+            }
+        }
+
+        stage('Ejecutar Pruebas') {
+            steps {
+                echo 'Ejecutando pruebas con pytest...'
+                bat 'pytest --junitxml=report.xml'
+            }
+        }
+
+        stage('Finalizar') {
+            steps {
+                echo 'Finalizando ejecución...'
+                bat 'taskkill /F /IM python.exe || exit 0'
+            }
+        }
+    }
+
+    post {
+        always {
+            echo 'Pipeline finalizado. Consulta los resultados en el log.'
+        }
+    }
+}

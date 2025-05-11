@@ -14,6 +14,7 @@ pipeline {
             steps {
                 echo 'Iniciando API en segundo plano...'
                 bat 'start /B py -m app.api'
+                // Esperar 10 segundos para asegurar que la API levante antes de seguir
                 sleep time: 10, unit: 'SECONDS'  // Da tiempo a que la API levante
             }
         }

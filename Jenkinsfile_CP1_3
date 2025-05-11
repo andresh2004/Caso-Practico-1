@@ -21,10 +21,14 @@ pipeline {
 
         stage('Ejecutar Pruebas') {
             steps {
+                echo 'Instalando pytest (si es necesario)...'
+                bat 'py -m pip install pytest'
+
                 echo 'Ejecutando pruebas con pytest...'
                 bat 'py -m pytest --junitxml=report.xml'
-            }
-        }
+    }
+}
+
 
         stage('Finalizar') {
             steps {

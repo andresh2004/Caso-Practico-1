@@ -22,7 +22,7 @@ pipeline {
         stage('Ejecutar Pruebas') {
             steps {
                 echo 'Ejecutando pruebas con pytest...'
-                bat 'pytest --junitxml=report.xml'
+                bat 'py -m pytest --junitxml=report.xml'
             }
         }
 

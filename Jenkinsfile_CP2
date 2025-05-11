@@ -1,43 +1,24 @@
 pipeline {
     agent any
 
-    environment {
-        PYTHON_PATH = 'C:\\Users\\USER\\AppData\\Local\\Programs\\Python\\Python312\\python.exe'
-        API_SCRIPT = 'app.py' // Cambia esto si tu API se ejecuta con otro archivo
-    }
-
     stages {
-        stage('Preparar Entorno') {
+        stage('Identificar Agente') {
             steps {
-                bat 'whoami'
-                bat 'hostname'
-                bat 'cd'
+                echo 'Ejecutando whoami...'
+                bat 'whoami'  // Identifica el usuario del agente
+
+                echo 'Ejecutando hostname...'
+                bat 'hostname'  // Muestra el nombre del agente (máquina)
+
+                echo 'Mostrando directorio de trabajo...'
+                bat 'cd'  // Muestra la carpeta actual (Workspace)
             }
         }
-        stage('Levantar API') {
+
+        stage('Finalización') {
             steps {
-                echo 'Iniciando API en segundo plano...'
-                bat "start /B %PYTHON_PATH% %API_SCRIPT%"
-                sleep time: 10, unit: 'SECONDS' // Esperamos que la API levante
+                echo 'Pipeline finalizado. Revisa el log para los datos requeridos.'
             }
-        }
-        stage('Ejecutar Tests') {
-            steps {
-                echo 'Ejecutando pruebas...'
-                bat "%PYTHON_PATH% -m pytest --junitxml=report.xml"
-            }
-        }
-        stage('Finalizar y Limpiar') {
-            steps {
-                echo 'Cerrando API...'
-                // Este comando fuerza el cierre de cualquier proceso Python (puedes hacerlo más específico si prefieres)
-                bat 'taskkill /F /IM python.exe || exit 0'
-            }
-        }
-    }
-    post {
-        always {
-            echo 'Pipeline finalizado. Puedes revisar el log de resultados.'
         }
     }
 }

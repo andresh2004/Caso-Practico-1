@@ -18,7 +18,7 @@ pipeline {
             steps {
                 echo 'Iniciando API en segundo plano...'
                 bat 'start cmd /c "%PYTHON_PATH% -m app.api"'
-                sleep time: 10, unit: 'SECONDS'  // Esperar que la API levante
+                sleep time: 30, unit: 'SECONDS'  // Esperar que la API levante
             }
         }
 

@@ -1,0 +1,32 @@
+pipeline {
+    agent any
+
+    environment {
+        PYTHON_PATH = 'C:\\Users\\USER\\AppData\\Local\\Programs\\Python\\Python312\\python.exe'
+    }
+
+    stages {
+        stage('Levantar API') {
+            steps {
+                echo 'Iniciando API sin ningún control...'
+                bat 'start cmd /c "%PYTHON_PATH% -m app.api"'
+                // NO hay sleep, NO hay health check, así forzamos la falla
+            }
+        }
+
+        stage('Ejecutar Pruebas') {
+            steps {
+                echo 'Ejecutando pruebas sin esperar a que la API esté lista...'
+                bat '%PYTHON_PATH% -m pip install pytest'
+                bat '%PYTHON_PATH% -m pytest --junitxml=report.xml'
+            }
+        }
+    }
+
+    post {
+        always {
+            echo 'Finalizando pipeline defectuoso...'
+            bat 'taskkill /F /IM python.exe || exit 0'
+        }
+    }
+}

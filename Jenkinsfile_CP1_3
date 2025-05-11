@@ -18,7 +18,22 @@ pipeline {
             steps {
                 echo 'Iniciando API en segundo plano...'
                 bat 'start cmd /c "%PYTHON_PATH% -m app.api"'
-                sleep time: 30, unit: 'SECONDS'  // Esperar que la API levante
+            }
+        }
+
+        stage('Verificar API Disponible') {
+            steps {
+                echo 'Verificando que la API esté disponible antes de continuar...'
+                bat '''
+                :check_loop
+                curl -s -o nul -w "%%{http_code}" http://localhost:5000/ | findstr 200
+                if errorlevel 1 (
+                    echo API no disponible aún. Esperando 5 segundos...
+                    timeout /t 5 > nul
+                    goto check_loop
+                )
+                echo API disponible. Continuando con las pruebas...
+                '''
             }
         }
 

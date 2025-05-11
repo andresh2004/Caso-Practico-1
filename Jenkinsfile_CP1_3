@@ -1,6 +1,10 @@
 pipeline {
     agent any
 
+    environment {
+        PYTHON_PATH = 'C:\\Users\\USER\\AppData\\Local\\Programs\\Python\\Python312\\python.exe'
+    }
+
     stages {
         stage('Preparar Entorno') {
             steps {
@@ -13,26 +17,24 @@ pipeline {
         stage('Levantar API') {
             steps {
                 echo 'Iniciando API en segundo plano...'
-                bat 'start cmd /c "py -m app.api"'
-                // Esperar 10 segundos para asegurar que la API levante antes de seguir
-                sleep time: 10, unit: 'SECONDS'  // Da tiempo a que la API levante
+                bat 'start cmd /c "%PYTHON_PATH% -m app.api"'
+                sleep time: 10, unit: 'SECONDS'  // Esperar que la API levante
             }
         }
 
         stage('Ejecutar Pruebas') {
             steps {
                 echo 'Instalando pytest (si es necesario)...'
-                bat 'py -m pip install pytest'
+                bat '%PYTHON_PATH% -m pip install pytest'
 
                 echo 'Ejecutando pruebas con pytest...'
-                bat 'py -m pytest --junitxml=report.xml'
-    }
-}
-
+                bat '%PYTHON_PATH% -m pytest --junitxml=report.xml'
+            }
+        }
 
         stage('Finalizar') {
             steps {
-                echo 'Finalizando ejecución...'
+                echo 'Cerrando API y limpiando procesos...'
                 bat 'taskkill /F /IM python.exe || exit 0'
             }
         }

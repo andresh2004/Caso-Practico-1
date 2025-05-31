@@ -10,15 +10,15 @@ pipeline {
         stage('Get Code') {
             steps {
                 checkout scm
-                sh 'whoami'
-                sh 'hostname'
-                sh 'echo $WORKSPACE'
+                bat 'whoami'
+                bat 'hostname'
+                bat 'echo $WORKSPACE'
             }
         }
 
         stage('Setup Environment') {
             steps {
-                sh '''
+                bat '''
                     python -m venv ${VENV_DIR}
                     . ${VENV_DIR}/bin/activate
                     pip install -r requirements.txt
@@ -28,7 +28,7 @@ pipeline {
 
         stage('Unit Tests') {
             steps {
-                sh '''
+                bat '''
                     . ${VENV_DIR}/bin/activate
                     pytest test/unit --junitxml=unit_report.xml
                 '''
@@ -42,7 +42,7 @@ pipeline {
 
         stage('Static Analysis (flake8)') {
             steps {
-                sh '''
+                bat '''
                     . ${VENV_DIR}/bin/activate
                     flake8 app/ --exit-zero --format=default > flake8_report.txt
                 '''
@@ -56,7 +56,7 @@ pipeline {
 
         stage('Security Test (bandit)') {
             steps {
-                sh '''
+                bat '''
                     . ${VENV_DIR}/bin/activate
                     bandit -r app/ -f xml -o bandit_report.xml || true
                 '''
@@ -70,7 +70,7 @@ pipeline {
 
         stage('Coverage') {
             steps {
-                sh '''
+                bat '''
                     . ${VENV_DIR}/bin/activate
                     coverage run -m pytest test/unit
                     coverage xml -o coverage.xml
@@ -85,7 +85,7 @@ pipeline {
 
         stage('Performance (JMeter)') {
             steps {
-                sh '''
+                bat '''
                     jmeter -n -t jmeter/test_plan.jmx -l jmeter/report.jtl -e -o jmeter/report
                 '''
             }

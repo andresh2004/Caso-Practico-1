@@ -80,8 +80,7 @@ pipeline {
             }
             post {
                 always {
-                    echo 'Coverage generado'
-                    recordCoverage tools: [cobertura(pattern: 'coverage.xml')]
+                    recordCoverage tools: [coverageAdapter('coverage.xml')]
                 }
             }
         }

@@ -83,7 +83,7 @@ pipeline {
                     recordCoverage(
                         tools: [cobertura(pattern: 'coverage.xml')],
                         sourceFileResolver: 'STORE_LAST_BUILD'
-                        )
+                    )
                 }
             }
         }

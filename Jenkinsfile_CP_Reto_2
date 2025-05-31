@@ -80,9 +80,14 @@ pipeline {
             }
             post {
                 always {
-                    publishCoverage adapters: [
-                        coberturaAdapter('coverage.xml'),
-                    ]
+                    publishHTML([
+                        allowMissing: false,
+                        alwaysLinkToLastBuild: true,
+                        keepAll: true,
+                        reportDir: 'coverage_html',
+                        reportFiles: 'index.html',
+                        reportName: 'Coverage Report'
+                    ])
                 }
             }
         }

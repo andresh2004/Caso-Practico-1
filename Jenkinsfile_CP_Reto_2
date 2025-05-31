@@ -45,13 +45,13 @@ pipeline {
         stage('Static Analysis (flake8)') {
             steps {
                 bat '''
-                    . ${VENV_DIR}/bin/activate
-                    flake8 app/ --exit-zero --format=default > flake8_report.txt
+                    call venv\\Scripts\\activate
+                    venv\\Scripts\\flake8 app/ --exit-zero --format=default > flake8_report.txt
                 '''
             }
             post {
                 always {
-                    recordIssues enabledForFailure: true, tool: flake8(pattern: 'flake8_report.txt')
+                    echo 'Revisar el archivo flake8_report.txt para detalles del análisis'
                 }
             }
         }

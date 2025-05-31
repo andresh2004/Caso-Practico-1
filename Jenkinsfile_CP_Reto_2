@@ -82,7 +82,7 @@ pipeline {
                 always {
                     recordCoverage(
                         tools: [cobertura(pattern: 'coverage.xml')],
-                        sourceFileResolver: sourceFiles('STORE_LAST_BUILD')
+                        sourceFileResolver: 'STORE_LAST_BUILD'
                         )
                 }
             }

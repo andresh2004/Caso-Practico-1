@@ -81,7 +81,7 @@ pipeline {
             post {
                 always {
                     recordCoverage(
-                        tools: [cobertura(pattern: 'coverage.xml')],
+                        tools: [jacocoAdapter(pattern: 'coverage.xml')],
                     )
                 }
             }

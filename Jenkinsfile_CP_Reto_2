@@ -1,0 +1,67 @@
+pipeline {
+    agent any
+
+    stages {
+
+        stage('Get Code') {
+            steps {
+                echo 'Código clonado automáticamente desde el repositorio SCM.'
+            }
+        }
+
+        stage('Unit') {
+            steps {
+                bat 'pytest test --junitxml=reports\\unit-results.xml'
+                junit 'reports/unit-results.xml'
+            }
+        }
+
+        stage('Rest') {
+            steps {
+                echo 'Pruebas de integración REST (Wiremock o peticiones reales).'
+                // Si tienes pruebas aquí, agrégalas tipo: bat 'pytest test/rest'
+            }
+        }
+
+        stage('Static') {
+            steps {
+                bat 'flake8 app > reports\\flake8-report.txt || exit 0'
+                recordIssues enabledForFailure: true, tool: flake8(pattern: 'reports/flake8-report.txt')
+            }
+        }
+
+        stage('Security Test') {
+            steps {
+                bat 'bandit -r app -f xml -o reports\\bandit-report.xml || exit 0'
+                recordIssues enabledForFailure: true, tool: bandit(pattern: 'reports/bandit-report.xml')
+            }
+        }
+
+        stage('Coverage') {
+            steps {
+                bat 'coverage run -m pytest test'
+                bat 'coverage xml -o reports\\coverage.xml'
+                cobertura coberturaReportFile: 'reports/coverage.xml'
+            }
+        }
+
+        stage('Performance') {
+            steps {
+                bat '"C:\\apache-jmeter-5.6.3\\bin\\jmeter.bat" -n -t test\\performance\\sumar_restar.jmx -l reports\\performance.jtl -e -o reports\\html'
+                publishHTML target: [
+                    reportName: 'JMeter Report',
+                    reportDir: 'reports/html',
+                    reportFiles: 'index.html',
+                    keepAll: true
+                ]
+            }
+        }
+    }
+
+    post {
+        always {
+            echo 'Limpiando workspace'
+            cleanWs()
+        }
+    }
+}

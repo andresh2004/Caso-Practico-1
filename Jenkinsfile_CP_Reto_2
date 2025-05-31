@@ -1,10 +1,7 @@
 pipeline {
     agent any
 
-    tools {
-        // No uses 'python' aquí porque Jenkins no lo reconoce como tipo válido
-    }
-
+    
     environment {
         VENV_DIR = 'venv'
     }

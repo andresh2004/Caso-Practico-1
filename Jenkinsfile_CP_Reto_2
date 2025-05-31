@@ -80,9 +80,9 @@ pipeline {
             }
             post {
                 always {
-                    recordCoverage(
-                        tools: [jacocoAdapter(pattern: 'coverage.xml')],
-                    )
+                    publishCoverage adapters: [
+                        coberturaAdapter('coverage.xml'),
+                    ]
                 }
             }
         }

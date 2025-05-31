@@ -73,14 +73,14 @@ pipeline {
         stage('Coverage') {
             steps {
                 bat '''
-                    . ${VENV_DIR}/bin/activate
-                    coverage run -m pytest test/unit
-                    coverage xml -o coverage.xml
+                    call venv\\Scripts\\activate
+                    venv\\Scripts\\coverage run -m pytest test\\unit
+                    venv\\Scripts\\coverage xml -o coverage.xml
                 '''
             }
             post {
                 always {
-                    cobertura coberturaReportFile: 'coverage.xml'
+                    echo 'Coverage generado'
                 }
             }
         }

@@ -30,7 +30,7 @@ pipeline {
             steps {
                 bat '''
                     call venv\\Scripts\\activate
-                    set PYTHONPATH=%cd%\\app
+                    set PYTHONPATH=%cd%
                     pytest test\\unit --junitxml=unit_report.xml
                     
                 '''

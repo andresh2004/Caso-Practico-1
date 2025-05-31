@@ -29,8 +29,8 @@ pipeline {
         stage('Unit Tests') {
             steps {
                 bat '''
-                    . ${VENV_DIR}/bin/activate
-                    pytest test/unit --junitxml=unit_report.xml
+                    call venv\\Scripts\\activate && pytest test\\unit --junitxml=unit_report.xml
+                    
                 '''
             }
             post {

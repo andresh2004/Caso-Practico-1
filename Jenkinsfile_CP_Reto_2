@@ -1,82 +1,100 @@
 pipeline {
     agent any
 
+    tools {
+        // No uses 'python' aquí porque Jenkins no lo reconoce como tipo válido
+    }
+
     environment {
-        VENV = 'venv\\Scripts\\activate' // localmente    }
+        VENV_DIR = 'venv'
+    }
 
     stages {
         stage('Get Code') {
             steps {
-                echo "Código clonado automáticamente desde el repositorio SCM."
+                checkout scm
+                sh 'whoami'
+                sh 'hostname'
+                sh 'echo $WORKSPACE'
             }
         }
 
-        stage('Unit') {
+        stage('Setup Environment') {
             steps {
-                bat '''
-                    call %VENV%
-                    pytest test/unit --junitxml=reports\\unit-results.xml
+                sh '''
+                    python -m venv ${VENV_DIR}
+                    . ${VENV_DIR}/bin/activate
+                    pip install -r requirements.txt
+                '''
+            }
+        }
+
+        stage('Unit Tests') {
+            steps {
+                sh '''
+                    . ${VENV_DIR}/bin/activate
+                    pytest test/unit --junitxml=unit_report.xml
                 '''
             }
             post {
                 always {
-                    junit 'reports/unit-results.xml'
+                    junit 'unit_report.xml'
                 }
             }
         }
 
-        stage('Static') {
+        stage('Static Analysis (flake8)') {
             steps {
-                bat '''
-                    call %VENV%
-                    flake8 src > reports/flake8.txt || exit 0
+                sh '''
+                    . ${VENV_DIR}/bin/activate
+                    flake8 app/ --exit-zero --format=default > flake8_report.txt
                 '''
             }
             post {
                 always {
-                    recordIssues tools: [flake8(pattern: 'reports/flake8.txt')]
+                    recordIssues enabledForFailure: true, tool: flake8(pattern: 'flake8_report.txt')
                 }
             }
         }
 
-        stage('Security Test') {
+        stage('Security Test (bandit)') {
             steps {
-                bat '''
-                    call %VENV%
-                    bandit -r src -f xml -o reports/bandit.xml || exit 0
+                sh '''
+                    . ${VENV_DIR}/bin/activate
+                    bandit -r app/ -f xml -o bandit_report.xml || true
                 '''
             }
             post {
                 always {
-                    recordIssues tools: [bandit(pattern: 'reports/bandit.xml')]
+                    recordIssues enabledForFailure: true, tool: bandit(pattern: 'bandit_report.xml')
                 }
             }
         }
 
         stage('Coverage') {
             steps {
-                bat '''
-                    call %VENV%
+                sh '''
+                    . ${VENV_DIR}/bin/activate
                     coverage run -m pytest test/unit
-                    coverage xml -o reports/coverage.xml
+                    coverage xml -o coverage.xml
                 '''
             }
             post {
                 always {
-                    cobertura coberturaReportFile: 'reports/coverage.xml'
+                    cobertura coberturaReportFile: 'coverage.xml'
                 }
             }
         }
 
-        stage('Performance') {
+        stage('Performance (JMeter)') {
             steps {
-                bat '''
-                    jmeter -n -t jmeter/test-plan.jmx -l reports/results.jtl -e -o reports/html
+                sh '''
+                    jmeter -n -t jmeter/test_plan.jmx -l jmeter/report.jtl -e -o jmeter/report
                 '''
             }
             post {
                 always {
-                    publishPerformanceReport sourceDataFiles: 'reports/results.jtl'
+                    perfReport sourceDataFiles: 'jmeter/report.jtl'
                 }
             }
         }
@@ -84,7 +102,6 @@ pipeline {
 
     post {
         always {
-            echo 'Limpiando workspace'
             cleanWs()
         }
     }

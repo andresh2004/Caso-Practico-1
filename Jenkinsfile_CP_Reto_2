@@ -1,59 +1,83 @@
 pipeline {
     agent any
 
-    stages {
+    environment {
+        VENV = 'venv\\Scripts\\activate' // localmente    }
 
+    stages {
         stage('Get Code') {
             steps {
-                echo 'Código clonado automáticamente desde el repositorio SCM.'
+                echo "Código clonado automáticamente desde el repositorio SCM."
             }
         }
 
         stage('Unit') {
             steps {
-                bat 'pytest test --junitxml=reports\\unit-results.xml'
-                junit 'reports/unit-results.xml'
+                bat '''
+                    call %VENV%
+                    pytest test/unit --junitxml=reports\\unit-results.xml
+                '''
             }
-        }
-
-        stage('Rest') {
-            steps {
-                echo 'Pruebas de integración REST (Wiremock o peticiones reales).'
-                // Si tienes pruebas aquí, agrégalas tipo: bat 'pytest test/rest'
+            post {
+                always {
+                    junit 'reports/unit-results.xml'
+                }
             }
         }
 
         stage('Static') {
             steps {
-                bat 'flake8 app > reports\\flake8-report.txt || exit 0'
-                recordIssues enabledForFailure: true, tool: flake8(pattern: 'reports/flake8-report.txt')
+                bat '''
+                    call %VENV%
+                    flake8 src > reports/flake8.txt || exit 0
+                '''
+            }
+            post {
+                always {
+                    recordIssues tools: [flake8(pattern: 'reports/flake8.txt')]
+                }
             }
         }
 
         stage('Security Test') {
             steps {
-                bat 'bandit -r app -f xml -o reports\\bandit-report.xml || exit 0'
-                recordIssues enabledForFailure: true, tool: bandit(pattern: 'reports/bandit-report.xml')
+                bat '''
+                    call %VENV%
+                    bandit -r src -f xml -o reports/bandit.xml || exit 0
+                '''
+            }
+            post {
+                always {
+                    recordIssues tools: [bandit(pattern: 'reports/bandit.xml')]
+                }
             }
         }
 
         stage('Coverage') {
             steps {
-                bat 'coverage run -m pytest test'
-                bat 'coverage xml -o reports\\coverage.xml'
-                cobertura coberturaReportFile: 'reports/coverage.xml'
+                bat '''
+                    call %VENV%
+                    coverage run -m pytest test/unit
+                    coverage xml -o reports/coverage.xml
+                '''
+            }
+            post {
+                always {
+                    cobertura coberturaReportFile: 'reports/coverage.xml'
+                }
             }
         }
 
         stage('Performance') {
             steps {
-                bat '"C:\\apache-jmeter-5.6.3\\bin\\jmeter.bat" -n -t test\\performance\\sumar_restar.jmx -l reports\\performance.jtl -e -o reports\\html'
-                publishHTML target: [
-                    reportName: 'JMeter Report',
-                    reportDir: 'reports/html',
-                    reportFiles: 'index.html',
-                    keepAll: true
-                ]
+                bat '''
+                    jmeter -n -t jmeter/test-plan.jmx -l reports/results.jtl -e -o reports/html
+                '''
+            }
+            post {
+                always {
+                    publishPerformanceReport sourceDataFiles: 'reports/results.jtl'
+                }
             }
         }
     }

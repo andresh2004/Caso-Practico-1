@@ -76,6 +76,7 @@ pipeline {
                     call venv\\Scripts\\activate
                     venv\\Scripts\\coverage run -m pytest test\\unit
                     venv\\Scripts\\coverage xml -o coverage.xml
+                    venv\\Scripts\\coverage html -d coverage_html
                 '''
             }
             post {

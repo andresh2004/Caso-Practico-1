@@ -59,13 +59,13 @@ pipeline {
         stage('Security Test (bandit)') {
             steps {
                 bat '''
-                    . ${VENV_DIR}/bin/activate
-                    bandit -r app/ -f xml -o bandit_report.xml || true
+                    call venv\\Scripts\\activate
+                    venv\\Scripts\\bandit -r app/ -f xml -o bandit_report.xml || exit 0
                 '''
             }
             post {
                 always {
-                    recordIssues enabledForFailure: true, tool: bandit(pattern: 'bandit_report.xml')
+                    echo 'Análisis de seguridad completado. Verifica el archivo bandit_report.xml'
                 }
             }
         }

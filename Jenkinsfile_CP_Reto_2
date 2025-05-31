@@ -51,7 +51,11 @@ pipeline {
             }
             post {
                 always {
-                    echo 'Revisar el archivo flake8_report.txt para detalles del análisis'
+                    recordIssues( 
+                        tools: [flake8(pattern: 'flake8_report.txt')],
+                        qualityGates: [[threshold: 1, type: 'TOTAL', unstable: true]],
+                        enabledForFailure: true
+                    )
                 }
             }
         }

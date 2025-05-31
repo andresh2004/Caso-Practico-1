@@ -29,7 +29,9 @@ pipeline {
         stage('Unit Tests') {
             steps {
                 bat '''
-                    call venv\\Scripts\\activate && pytest test\\unit --junitxml=unit_report.xml
+                    call venv\\Scripts\\activate
+                    set PYTHONPATH=%cd%\\app
+                    pytest test\\unit --junitxml=unit_report.xml
                     
                 '''
             }

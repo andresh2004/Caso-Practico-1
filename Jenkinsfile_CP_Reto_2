@@ -90,8 +90,8 @@ pipeline {
                 bat '''
                      set JMETER_HOME=C:\\Users\\USER\\Downloads\\apache-jmeter-5.6.3\\apache-jmeter-5.6.3
                      set PATH=%JMETER_HOME%\\bin;%PATH%
-
-                    jmeter -n -t jmeter/sumar_restar.jmx -l jmeter/report.jtl -e -o jmeter/report
+                     mkdir jmeter\\report
+                     jmeter -n -t jmeter/sumar_restar.jmx -l jmeter/report.jtl -e -o jmeter/report
 
                 '''
             }

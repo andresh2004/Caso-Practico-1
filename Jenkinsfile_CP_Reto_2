@@ -61,12 +61,11 @@ pipeline {
                 bat '''
                     call venv\\Scripts\\activate
                     pip install bandit
-                    curl -L -o bandit-sarif.zip https://github.com/securego/bandit-sarif-formatter/archive/refs/heads/master.zip
+                    curl -L -o bandit-sarif.zip https://github.com/securego/bandit-sarif-formatter/archive/refs/heads/main.zip
                     powershell -Command "Expand-Archive -Path bandit-sarif.zip -DestinationPath bandit-sarif -Force"
-                    cd bandit-sarif\\bandit-sarif-formatter-master
-                    pip install .
-                    cd ..\\..
+                    pip install bandit-sarif\\bandit-sarif-formatter-main\\
                     bandit -r app/ -f sarif -o bandit-report.sarif || exit 0
+                    bandit-sarif bandit.json > bandit-report.sarif
                 '''
             }
             post {

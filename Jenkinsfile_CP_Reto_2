@@ -65,10 +65,7 @@ pipeline {
             }
             post {
                 always {
-                    recordIssues(
-                       tool: bandit(pattern: 'bandit_report.json'), 
-                       sourceCodeEncoding: 'UTF-8'
-                    )
+                    recordIssues tool: [issueParser(parserName: 'Bandit', pattern: 'bandit_report.xml')]                                       
                 }
             }
         }

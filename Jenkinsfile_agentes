@@ -137,7 +137,7 @@ pipeline {
                     hostname
                     echo %WORKSPACE%
                     echo Simulando despliegue final...
-                    timeout /t 2
+                    ping 127.0.0.1 -n 3 > nul
                 '''
             }
         }

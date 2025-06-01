@@ -65,7 +65,7 @@ pipeline {
             }
             post {
                 always {
-                    recordIssues tools: [parsers([bandit()])], qualityGates: [[threshold: 1, type: 'TOTAL', unstable: true]]                                       
+                    recordIssues tools: [bandit(pattern: 'bandit_report.xml')]                                       
                 }
             }
         }

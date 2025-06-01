@@ -65,10 +65,9 @@ pipeline {
             }
             post {
                 always {
-                    recordIssues ( 
-                      tools: [pylint(pattern: 'bandit_report.xml')],
-                      sourceCodeEncoding: 'UTF-8'
-                    )                                  
+                
+                 recordIssues tools: [new Pylint(pattern: 'bandit_report.xml')]                    
+                                                     
                 }
             }
         }

@@ -60,8 +60,8 @@ pipeline {
             steps {
                 bat '''
                     call venv\\Scripts\\activate
+                    pip install bandit bandit-sarif
                     venv\\Scripts\\bandit -r app/ -f json -o bandit.json || exit 0
-                    pip install bandit-sarif
                     venv\\Scripts\\bandit-sarif bandit.json bandit-report.sarif
                 '''
             }

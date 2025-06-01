@@ -66,20 +66,8 @@ pipeline {
             post {
                 always {
                     recordIssues ( 
-                      tools: [genericParser(  
-                         arserName: 'Bandit',
-                         pattern: 'bandit_report.xml', 
-                         regularExpression: '<test_id>(.*?)</test_id>.*?<issue_severity>(.*?)</issue_severity>.*?<filename>(.*?)</filename>.*?<line_number>(\\d+)</line_number>', 
-                         example: '<test_id>B101</test_id><issue_severity>LOW</issue_severity><filename>app/calc.py</filename><line_number>12</line_number>',
-                         name: 'Bandit Report',
-                         high: 'HIGH',
-                         normal: 'MEDIUM',
-                         low: 'LOW',
-                         fileName: '$3',
-                         lineNumber: '$4',
-                         category: '$1',
-                         message: '$2'
-                        )] 
+                      tools: [pylint(pattern: 'bandit_report.xml')],
+                      sourceCodeEncoding: 'UTF-8'
                     )                                  
                 }
             }

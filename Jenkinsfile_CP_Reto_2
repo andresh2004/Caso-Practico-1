@@ -60,17 +60,17 @@ pipeline {
             steps {
                 bat '''
                     call venv\\Scripts\\activate
-                    pip install bandit
-                    curl -L -o bandit-sarif.zip https://github.com/securego/bandit-sarif-formatter/archive/refs/heads/main.zip
-                    powershell -Command "Expand-Archive -Path bandit-sarif.zip -DestinationPath bandit-sarif -Force"
-                    pip install bandit-sarif\\bandit-sarif-formatter-main\\
-                    bandit -r app/ -f sarif -o bandit-report.sarif || exit 0
-                    bandit-sarif bandit.json > bandit-report.sarif
+                    venv\\Scripts\\bandit -r app/ -f json -o bandit-report.json || exit 0
                 '''
             }
             post {
-                always {                
-                 recordIssues tools: [sarif(pattern: 'bandit-report.sarif')]                    
+               always {  
+                  recordIssues tools: [genericParser(
+                     pattern: 'bandit-report.json',
+                     name: 'Bandit (JSON)',
+                     regularExpression: '"filename":\\s*"(?<file>[^"]+)",\\s*"line_number":\\s*(?<line>\\d+),.*?"issue_text":\\s*"(?<message>[^"]+)"',
+                     example: '"filename": "app/insecure_code.py", "line_number": 3, "issue_text": "Subprocess call with shell=True"'
+                  )]                   
                                                      
                 }
             }

@@ -60,13 +60,12 @@ pipeline {
             steps {
                 bat '''
                     call venv\\Scripts\\activate
-                    venv\\Scripts\\bandit -r app/ -f xml -o bandit_report.xml || exit 0
+                    venv\\Scripts\\bandit -r app/ -f sarif -o bandit-report.sarif || exit 0
                 '''
             }
             post {
-                always {
-                
-                 recordIssues tools: [new Pylint(pattern: 'bandit_report.xml')]                    
+                always {                
+                 recordIssues tools: [sarif(pattern: 'bandit-report.sarif')]                    
                                                      
                 }
             }

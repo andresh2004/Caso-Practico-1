@@ -65,13 +65,7 @@ pipeline {
             }
             post {
                always {  
-                  recordIssues tools: [parser(
-                     name: 'Bandit (JSON)',
-                     pattern: 'bandit-report.json',
-                     regexp: true,
-                     regularExpression: '"filename":\\s*"(?<file>[^"]+)",\\s*"line_number":\\s*(?<line>\\d+),.*?"issue_text":\\s*"(?<message>[^"]+)"',
-                     example: '"filename": "app/insecure_code.py", "line_number": 3, "issue_text": "Subprocess call with shell=True"'
-                  )]                   
+                  recordIssues tools: [sarif(pattern: 'bandit-report.sarif')]                            
                                                      
                 }
             }

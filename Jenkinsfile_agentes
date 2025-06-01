@@ -1,0 +1,93 @@
+pipeline {
+    agent none
+
+    stages {
+        stage('Checkout') {
+            agent { label 'build-agent' }
+            steps {
+                sh 'whoami'
+                sh 'hostname'
+                sh 'echo ${WORKSPACE}'
+                checkout scm
+            }
+        }
+
+        stage('Instalar dependencias') {
+            agent { label 'build-agent' }
+            steps {
+                sh 'whoami'
+                sh 'hostname'
+                sh 'echo ${WORKSPACE}'
+                sh 'pip install -r requirements.txt'
+            }
+        }
+
+        stage('Análisis estático') {
+            agent { label 'build-agent' }
+            steps {
+                sh 'whoami'
+                sh 'hostname'
+                sh 'echo ${WORKSPACE}'
+                sh 'flake8 src/ || true'  // Permite continuar aunque haya warnings
+                sh 'bandit -r src/ || true'
+            }
+        }
+
+        stage('Tests unitarios') {
+            agent { label 'test-agent' }
+            steps {
+                sh 'whoami'
+                sh 'hostname'
+                sh 'echo ${WORKSPACE}'
+                sh 'pytest tests/unit'
+            }
+        }
+
+        stage('Tests funcionales') {
+            agent { label 'test-agent' }
+            steps {
+                sh 'whoami'
+                sh 'hostname'
+                sh 'echo ${WORKSPACE}'
+                sh 'pytest tests/funcional'
+            }
+        }
+
+        stage('Cobertura') {
+            agent { label 'test-agent' }
+            steps {
+                sh 'whoami'
+                sh 'hostname'
+                sh 'echo ${WORKSPACE}'
+                sh 'pytest --cov=src --cov-report=term-missing'
+            }
+        }
+
+        stage('Empaquetado') {
+            agent { label 'build-agent' }
+            steps {
+                sh 'whoami'
+                sh 'hostname'
+                sh 'echo ${WORKSPACE}'
+                sh 'zip -r artefacto.zip src/'
+            }
+        }
+
+        stage('Despliegue simulado') {
+            agent { label 'deploy-agent' }
+            steps {
+                sh 'whoami'
+                sh 'hostname'
+                sh 'echo ${WORKSPACE}'
+                sh 'echo "Desplegando artefacto ficticio..."'
+                sh 'sleep 2' // Simula algo de tiempo real
+            }
+        }
+    }
+
+    post {
+        always {
+            cleanWs()
+        }
+    }
+}

@@ -65,7 +65,13 @@ pipeline {
             }
             post {
                 always {
-                    recordIssues tools: [[$class: 'Bandit', pattern: 'bandit_report.xml']]                                       
+                    recordIssues tools: [genericParser(  
+                        name: 'Bandit', 
+                        pattern: 'bandit_report.xml', 
+                        isXml: true,
+                        reportEncoding: 'UTF-8',
+                        tool: 'bandit'
+                    )]                                   
                 }
             }
         }

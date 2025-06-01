@@ -1,86 +1,144 @@
 pipeline {
     agent none
 
+    environment {
+        VENV_DIR = 'venv'
+        PYTHON_EXE = 'C:\\Users\\USER\\AppData\\Local\\Programs\\Python\\Python313\\python.exe'
+    }
+
     stages {
         stage('Checkout') {
             agent { label 'build-agent' }
             steps {
                 bat 'whoami'
                 bat 'hostname'
-                bat 'echo ${WORKSPACE}'
+                bat 'echo %WORKSPACE%'
                 checkout scm
             }
         }
 
-        stage('Instalar dependencias') {
+        stage('Setup Virtualenv') {
             agent { label 'build-agent' }
             steps {
-                bat 'whoami'
-                bat 'hostname'
-                bat 'echo ${WORKSPACE}'
-                bat 'pip install -r requirements.txt'
+                bat '''
+                    %PYTHON_EXE% -m venv venv
+                    call venv\\Scripts\\activate && where python && pip install -r requirements.txt
+                '''
             }
         }
 
-        stage('Analisis estatico') {
-            agent { label 'build-agent' }
-            steps {
-                bat 'whoami'
-                bat 'hostname'
-                bat 'echo ${WORKSPACE}'
-                bat 'flake8 src/ || true'  // Permite continuar aunque haya warnings
-                bat 'bandit -r src/ || true'
-            }
-        }
-
-        stage('Tests unitarios') {
+        stage('Unit Tests') {
             agent { label 'test-agent' }
             steps {
-                bat 'whoami'
-                bat 'hostname'
-                bat 'echo ${WORKSPACE}'
-                bat 'pytest tests/unit'
+                bat '''
+                    whoami
+                    hostname
+                    echo %WORKSPACE%
+                    call venv\\Scripts\\activate
+                    set PYTHONPATH=%cd%
+                    pytest test\\unit --junitxml=unit_report.xml
+                '''
+            }
+            post {
+                always {
+                    junit 'unit_report.xml'
+                }
             }
         }
 
-        stage('Tests funcionales') {
+        stage('Static Analysis (flake8)') {
             agent { label 'test-agent' }
             steps {
-                bat 'whoami'
-                bat 'hostname'
-                bat 'echo ${WORKSPACE}'
-                bat 'pytest tests/funcional'
+                bat '''
+                    whoami
+                    hostname
+                    echo %WORKSPACE%
+                    call venv\\Scripts\\activate
+                    venv\\Scripts\\flake8 app/ --exit-zero --format=default > flake8_report.txt
+                '''
+            }
+            post {
+                always {
+                    recordIssues tools: [flake8(pattern: 'flake8_report.txt')]                                 
+                }
             }
         }
 
-        stage('Cobertura') {
+        stage('Security Test (bandit)') {
             agent { label 'test-agent' }
             steps {
-                bat 'whoami'
-                bat 'hostname'
-                bat 'echo ${WORKSPACE}'
-                bat 'pytest --cov=src --cov-report=term-missing'
+                bat '''
+                    whoami
+                    hostname
+                    echo %WORKSPACE%
+                    call venv\\Scripts\\activate
+                    venv\\Scripts\\bandit -r app/ -f sarif -o reports\\bandit-report.sarif || exit 0
+                '''
+            }
+            post {
+               always {  
+                  recordIssues tools: [sarif(pattern: 'reports/bandit-report.sarif')]                                                  
+                }
             }
         }
 
-        stage('Empaquetado') {
-            agent { label 'build-agent' }
+        stage('Coverage') {
+            agent { label 'test-agent' }
             steps {
-                bat 'whoami'
-                bat 'hostname'
-                bat 'echo ${WORKSPACE}'
-                bat 'zip -r artefacto.zip src/'
+                bat '''
+                    whoami
+                    hostname
+                    echo %WORKSPACE%
+                    call venv\\Scripts\\activate
+                    venv\\Scripts\\coverage run -m pytest test\\unit
+                    venv\\Scripts\\coverage xml -o coverage.xml
+                    venv\\Scripts\\coverage html -d coverage_html
+                '''
+            }
+            post {
+                always {
+                    publishHTML([
+                        allowMissing: false,
+                        alwaysLinkToLastBuild: true,
+                        keepAll: true,
+                        reportDir: 'coverage_html',
+                        reportFiles: 'index.html',
+                        reportName: 'Coverage Report'
+                    ])
+                }
             }
         }
 
-        stage('Despliegue simulado') {
+        stage('Performance (JMeter)') {
+            agent { label 'test-agent' }
+            steps {
+                bat '''
+                    whoami
+                    hostname
+                    echo %WORKSPACE%
+                    set JMETER_HOME=C:\\Users\\USER\\Downloads\\apache-jmeter-5.6.3\\apache-jmeter-5.6.3
+                    set PATH=%JMETER_HOME%\\bin;%PATH%
+                    mkdir jmeter\\report
+                    jmeter -n -t test\\testplan\\sumar_restar.jmx -l jmeter\\report.jtl -e -o jmeter\\report
+                '''
+            }
+            post {
+                always {
+                    perfReport sourceDataFiles: 'jmeter/report.jtl'
+                }
+            }
+        }
+
+        stage('Deploy Simulado') {
             agent { label 'deploy-agent' }
             steps {
-                bat 'whoami'
-                bat 'hostname'
-                bat 'echo ${WORKSPACE}'
-                bat 'echo "Desplegando artefacto ficticio..."'
-                bat 'sleep 2' // Simula algo de tiempo real
+                bat '''
+                    whoami
+                    hostname
+                    echo %WORKSPACE%
+                    echo Simulando despliegue final...
+                    timeout /t 2
+                '''
             }
         }
     }

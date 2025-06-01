@@ -51,7 +51,7 @@ pipeline {
             }
             post {
                 always {
-                    recordIssues tools: [flake8(pattern: 'flake8_report.txt')],                                 
+                    recordIssues tools: [flake8(pattern: 'flake8_report.txt')]                                 
                 }
             }
         }

@@ -65,7 +65,7 @@ pipeline {
             }
             post {
                 always {
-                    recordIssues tool: [issueParser(parserName: 'Bandit', pattern: 'bandit_report.xml')]                                       
+                    recordIssues tool: [bandit(pattern: 'bandit_report.xml')]                                       
                 }
             }
         }

@@ -5,9 +5,9 @@ pipeline {
         stage('Checkout') {
             agent { label 'build-agent' }
             steps {
-                sh 'whoami'
-                sh 'hostname'
-                sh 'echo ${WORKSPACE}'
+                bat 'whoami'
+                bat 'hostname'
+                bat 'echo ${WORKSPACE}'
                 checkout scm
             }
         }
@@ -15,72 +15,72 @@ pipeline {
         stage('Instalar dependencias') {
             agent { label 'build-agent' }
             steps {
-                sh 'whoami'
-                sh 'hostname'
-                sh 'echo ${WORKSPACE}'
-                sh 'pip install -r requirements.txt'
+                bat 'whoami'
+                bat 'hostname'
+                bat 'echo ${WORKSPACE}'
+                bat 'pip install -r requirements.txt'
             }
         }
 
-        stage('Análisis estático') {
+        stage('Analisis estatico') {
             agent { label 'build-agent' }
             steps {
-                sh 'whoami'
-                sh 'hostname'
-                sh 'echo ${WORKSPACE}'
-                sh 'flake8 src/ || true'  // Permite continuar aunque haya warnings
-                sh 'bandit -r src/ || true'
+                bat 'whoami'
+                bat 'hostname'
+                bat 'echo ${WORKSPACE}'
+                bat 'flake8 src/ || true'  // Permite continuar aunque haya warnings
+                bat 'bandit -r src/ || true'
             }
         }
 
         stage('Tests unitarios') {
             agent { label 'test-agent' }
             steps {
-                sh 'whoami'
-                sh 'hostname'
-                sh 'echo ${WORKSPACE}'
-                sh 'pytest tests/unit'
+                bat 'whoami'
+                bat 'hostname'
+                bat 'echo ${WORKSPACE}'
+                bat 'pytest tests/unit'
             }
         }
 
         stage('Tests funcionales') {
             agent { label 'test-agent' }
             steps {
-                sh 'whoami'
-                sh 'hostname'
-                sh 'echo ${WORKSPACE}'
-                sh 'pytest tests/funcional'
+                bat 'whoami'
+                bat 'hostname'
+                bat 'echo ${WORKSPACE}'
+                bat 'pytest tests/funcional'
             }
         }
 
         stage('Cobertura') {
             agent { label 'test-agent' }
             steps {
-                sh 'whoami'
-                sh 'hostname'
-                sh 'echo ${WORKSPACE}'
-                sh 'pytest --cov=src --cov-report=term-missing'
+                bat 'whoami'
+                bat 'hostname'
+                bat 'echo ${WORKSPACE}'
+                bat 'pytest --cov=src --cov-report=term-missing'
             }
         }
 
         stage('Empaquetado') {
             agent { label 'build-agent' }
             steps {
-                sh 'whoami'
-                sh 'hostname'
-                sh 'echo ${WORKSPACE}'
-                sh 'zip -r artefacto.zip src/'
+                bat 'whoami'
+                bat 'hostname'
+                bat 'echo ${WORKSPACE}'
+                bat 'zip -r artefacto.zip src/'
             }
         }
 
         stage('Despliegue simulado') {
             agent { label 'deploy-agent' }
             steps {
-                sh 'whoami'
-                sh 'hostname'
-                sh 'echo ${WORKSPACE}'
-                sh 'echo "Desplegando artefacto ficticio..."'
-                sh 'sleep 2' // Simula algo de tiempo real
+                bat 'whoami'
+                bat 'hostname'
+                bat 'echo ${WORKSPACE}'
+                bat 'echo "Desplegando artefacto ficticio..."'
+                bat 'sleep 2' // Simula algo de tiempo real
             }
         }
     }

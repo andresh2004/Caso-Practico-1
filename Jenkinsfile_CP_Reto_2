@@ -60,7 +60,7 @@ pipeline {
             steps {
                 bat '''
                     call venv\\Scripts\\activate
-                    pip install bandit bandit-sarif
+                    pip install git+https://github.com/securego/bandit-sarif-formatter.git
                     venv\\Scripts\\bandit -r app/ -f json -o bandit.json || exit 0
                     venv\\Scripts\\bandit-sarif bandit.json bandit-report.sarif
                 '''

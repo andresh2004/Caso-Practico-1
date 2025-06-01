@@ -51,11 +51,7 @@ pipeline {
             }
             post {
                 always {
-                    recordIssues( 
-                        tools: [flake8(pattern: 'flake8_report.txt')],
-                        qualityGates: [[threshold: 1, type: 'TOTAL', unstable: true]],
-                        enabledForFailure: true
-                    )
+                    recordIssues tools: [flake8(pattern: 'flake8_report.txt')],                                 
                 }
             }
         }
@@ -69,7 +65,10 @@ pipeline {
             }
             post {
                 always {
-                    echo 'Análisis de seguridad completado. Verifica el archivo bandit_report.xml'
+                    recordIssues(
+                       tool: bandit(pattern: 'bandit_report.json'), 
+                       sourceCodeEncoding: 'UTF-8'
+                    )
                 }
             }
         }

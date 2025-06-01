@@ -1,0 +1,50 @@
+{
+  "Peticion Sumar" : {
+    "transaction" : "Peticion Sumar",
+    "sampleCount" : 200,
+    "errorCount" : 200,
+    "errorPct" : 100.0,
+    "meanResTime" : 0.645,
+    "medianResTime" : 1.0,
+    "minResTime" : 0.0,
+    "maxResTime" : 14.0,
+    "pct1ResTime" : 1.0,
+    "pct2ResTime" : 1.0,
+    "pct3ResTime" : 2.0,
+    "throughput" : 261.78010471204186,
+    "receivedKBytesPerSec" : 672.3453861256544,
+    "sentKBytesPerSec" : 0.0
+  },
+  "Peticion restar" : {
+    "transaction" : "Peticion restar",
+    "sampleCount" : 200,
+    "errorCount" : 200,
+    "errorPct" : 100.0,
+    "meanResTime" : 0.6650000000000001,
+    "medianResTime" : 1.0,
+    "minResTime" : 0.0,
+    "maxResTime" : 4.0,
+    "pct1ResTime" : 1.0,
+    "pct2ResTime" : 2.0,
+    "pct3ResTime" : 3.990000000000009,
+    "throughput" : 268.4563758389262,
+    "receivedKBytesPerSec" : 689.4924496644295,
+    "sentKBytesPerSec" : 0.0
+  },
+  "Total" : {
+    "transaction" : "Total",
+    "sampleCount" : 400,
+    "errorCount" : 400,
+    "errorPct" : 100.0,
+    "meanResTime" : 0.6550000000000004,
+    "medianResTime" : 1.0,
+    "minResTime" : 0.0,
+    "maxResTime" : 14.0,
+    "pct1ResTime" : 1.0,
+    "pct2ResTime" : 1.0,
+    "pct3ResTime" : 3.0,
+    "throughput" : 522.8758169934641,
+    "receivedKBytesPerSec" : 1342.9330065359477,
+    "sentKBytesPerSec" : 0.0
+  }
+}

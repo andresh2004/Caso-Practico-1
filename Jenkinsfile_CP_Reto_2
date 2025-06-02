@@ -44,6 +44,7 @@ pipeline {
                     whoami
                     hostname
                     echo %WORKSPACE%
+                    mkdir reports
                     call venv\\Scripts\\activate
                     venv\\Scripts\\bandit -r app/ -f sarif -o reports\\bandit-report.sarif || exit 0
                 '''

@@ -1,88 +1,181 @@
-
 pipeline {
+<<<<<<< Updated upstream
     agent any
+
+    
     environment {
-        VENV_PATH = "venv"
-        REPORTS_DIR = "reports"
+        VENV_DIR = 'venv'
     }
+
     stages {
-        stage('Preparacion') {
+        stage('Get Code') {
+            steps {
+                checkout scm
+                bat 'whoami'
+                bat 'hostname'
+                bat 'echo $WORKSPACE'
+            }
+        }
+
+        stage('Setup Environment') {
             steps {
                 bat '''
-                    echo ========================
-                    echo WHOAMI:
-                    whoami
-                    echo HOSTNAME:
-                    hostname
-                    echo WORKSPACE:
-                    echo %WORKSPACE%
-                    echo ========================
-                    python --version
-                    python -m venv %VENV_PATH%
-                    call %VENV_PATH%\\Scripts\\activate
-                    pip install --upgrade pip
-                    pip install -r requirements.txt
+                    C:\\Users\\USER\\AppData\\Local\\Programs\\Python\\Python313\\python.exe -m venv venv
+                    call venv\\Scripts\\activate && where python && pip install -r requirements.txt
+                    
+=======
+    agent none
+
+    environment {
+        VENV_DIR = 'venv'
+        PYTHON_EXE = 'C:\\Users\\USER\\AppData\\Local\\Programs\\Python\\Python313\\python.exe'
+    }
+
+    stages {
+        stage('Checkout') {
+            agent { label 'build-agent' }
+            steps {
+                bat 'whoami'
+                bat 'hostname'
+                bat 'echo %WORKSPACE%'
+                checkout scm
+            }
+        }
+
+        stage('Setup Virtualenv') {
+            agent { label 'build-agent' }
+            steps {
+                bat '''
+                    %PYTHON_EXE% -m venv venv
+                    call venv\\Scripts\\activate && where python && pip install -r requirements.txt
+>>>>>>> Stashed changes
                 '''
             }
         }
-        stage('Test') {
+
+        stage('Unit Tests') {
+<<<<<<< Updated upstream
+            steps {
+                bat '''
+                    call venv\\Scripts\\activate
+                    set PYTHONPATH=%cd%
+                    pytest test\\unit --junitxml=unit_report.xml
+                    
+=======
             agent { label 'test-agent' }
             steps {
-              bat '''
-                call %VENV_PATH%\\Scripts\\activate
-                pytest --junitxml=reports\\unit-test-results.xml || exit 0
-               '''
-            }
-            post {
-              always {
-             junit testResults: 'reports/unit-test-results.xml'
-                 }
-            }
-        }
-        stage('Coverage') {
-            steps {
                 bat '''
-                    call %VENV_PATH%\\Scripts\\activate
-                    coverage run -m pytest || exit 0
-                    coverage xml -o %REPORTS_DIR%\\coverage.xml
-                '''
-                }
-            }
-        }
-        stage('Analisis Estatico (Flake8)') {
-            steps {
-                bat '''
-                    call %VENV_PATH%\\Scripts\\activate
-                    flake8 --format=default app/ > %REPORTS_DIR%\\flake8-report.txt || exit 0
+                    whoami
+                    hostname
+                    echo %WORKSPACE%
+                    call venv\\Scripts\\activate
+                    set PYTHONPATH=%cd%
+                    pytest test\\unit --junitxml=unit_report.xml
+>>>>>>> Stashed changes
                 '''
             }
             post {
                 always {
-                    recordIssues tools: [flake8(pattern: 'reports/flake8-report.txt')],
-                     healthy: 0,
-                     unhealthy: 10,
-                     minimumSeverity: 'NORMAL'    
+                    junit 'unit_report.xml'
                 }
             }
         }
+
+        stage('Static Analysis (flake8)') {
+<<<<<<< Updated upstream
+            steps {
+                bat '''
+=======
+            agent { label 'test-agent' }
+            steps {
+                bat '''
+                    whoami
+                    hostname
+                    echo %WORKSPACE%
+>>>>>>> Stashed changes
+                    call venv\\Scripts\\activate
+                    venv\\Scripts\\flake8 app/ --exit-zero --format=default > flake8_report.txt
+                '''
+            }
+            post {
+                always {
+                    recordIssues tools: [flake8(pattern: 'flake8_report.txt')]                                 
+                }
+            }
+        }
+
         stage('Security Test (bandit)') {
+<<<<<<< Updated upstream
             steps {
                 bat '''
-                    call %VENV_PATH%\\Scripts\\activate
-                    mkdir %REPORTS_DIR%
-                    bandit -r app/ -f sarif -o %REPORTS_DIR%\\bandit-report.sarif || exit 0
+=======
+            agent { label 'test-agent' }
+            steps {
+                bat '''
+                    whoami
+                    hostname
+                    echo %WORKSPACE%
+                    mkdir reports
+>>>>>>> Stashed changes
+                    call venv\\Scripts\\activate
+                    venv\\Scripts\\bandit -r app/ -f sarif -o reports\\bandit-report.sarif || exit 0
+                '''
+            }
+            post {
+               always {  
+<<<<<<< Updated upstream
+                  recordIssues tools: [sarif(pattern: 'bandit-report.sarif')]                            
+                                                     
+=======
+                  recordIssues tools: [sarif(pattern: 'reports/bandit-report.sarif')]                                                  
+>>>>>>> Stashed changes
+                }
+            }
+        }
+
+        stage('Coverage') {
+<<<<<<< Updated upstream
+            steps {
+                bat '''
+=======
+            agent { label 'test-agent' }
+            steps {
+                bat '''
+                    whoami
+                    hostname
+                    echo %WORKSPACE%
+>>>>>>> Stashed changes
+                    call venv\\Scripts\\activate
+                    venv\\Scripts\\coverage run -m pytest test\\unit
+                    venv\\Scripts\\coverage xml -o coverage.xml
+                    venv\\Scripts\\coverage html -d coverage_html
                 '''
             }
             post {
                 always {
-                    recordIssues tools: [sarif(pattern: 'reports/bandit-report.sarif')], qualityGates: [
-                    [threshold: 2, type: 'TOTAL', unstable: true],
-                    [threshold: 4, type: 'TOTAL', failure: true]
-                 ]
+                    publishHTML([
+                        allowMissing: false,
+                        alwaysLinkToLastBuild: true,
+                        keepAll: true,
+                        reportDir: 'coverage_html',
+                        reportFiles: 'index.html',
+                        reportName: 'Coverage Report'
+                    ])
                 }
             }
         }
-        stage('Performance') {
+
+        stage('Performance (JMeter)') {
+<<<<<<< Updated upstream
+            steps {
+                bat '''
+                     set JMETER_HOME=C:\\Users\\USER\\Downloads\\apache-jmeter-5.6.3\\apache-jmeter-5.6.3
+                     set PATH=%JMETER_HOME%\\bin;%PATH%
+                     mkdir jmeter\\report
+                     jmeter -n -t test\\testplan\\sumar_restar.jmx -l jmeter\\report.jtl -e -o jmeter\\report
+
+=======
+            agent { label 'test-agent' }
             steps {
                 bat '''
                     whoami
@@ -94,14 +187,41 @@ pipeline {
                     rmdir /s /q jmeter\\report
                     mkdir jmeter\\report
                     jmeter -n -t test\\testplan\\sumar_restar.jmx -l jmeter\\report.jtl -e -o jmeter\\report
+>>>>>>> Stashed changes
+                '''
+            }
+            post {
+                always {
+                    perfReport sourceDataFiles: 'jmeter/report.jtl'
+                }
+            }
+        }
+<<<<<<< Updated upstream
+=======
 
+        stage('Deploy Simulado') {
+            agent { label 'deploy-agent' }
+            steps {
+                bat '''
+                    whoami
+                    hostname
+                    echo %WORKSPACE%
+                    echo Simulando despliegue final...
+                    ping 127.0.0.1 -n 3 > nul
                 '''
             }
         }
-    }
-    post {
-        always {
-            junit testResults: 'reports/unit-test-results.xml', checksName: ''
-        }
+>>>>>>> Stashed changes
     }
 
+    post {
+        always {
+<<<<<<< Updated upstream
+            cleanWs()
+=======
+            node('build-agent') {
+                 cleanWs()
+            }     
+>>>>>>> Stashed changes
+        }
+    }

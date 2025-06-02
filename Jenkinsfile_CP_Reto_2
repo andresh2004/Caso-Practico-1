@@ -95,9 +95,7 @@ pipeline {
     }
     post {
         always {
-            junit 'reports/unit-test-results.xml'
-            publishCoverage adapters: [coberturaAdapter('reports/coverage.xml')], sourceFileResolver: sourceFiles('NEVER_STORE')
-            performanceReport sourceDataFiles: 'reports/report.jtl'
+            junit testResults: 'reports/unit-test-results.xml', checksName: ''
         }
     }
 }

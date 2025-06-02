@@ -45,6 +45,7 @@ pipeline {
                     coverage run -m pytest || exit 0
                     coverage xml -o %REPORTS_DIR%\\coverage.xml
                 '''
+                }
             }
         }
         stage('Analisis Estatico (Flake8)') {

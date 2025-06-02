@@ -6,7 +6,7 @@ pipeline {
         REPORTS_DIR = "reports"
     }
     stages {
-        stage('Preparación') {
+        stage('Preparacion') {
             steps {
                 bat '''
                     echo ========================
@@ -43,7 +43,7 @@ pipeline {
                 '''
             }
         }
-        stage('Análisis Estático (Flake8)') {
+        stage('Analisis Estatico (Flake8)') {
             steps {
                 bat '''
                     call %VENV_PATH%\\Scripts\\activate
@@ -52,7 +52,10 @@ pipeline {
             }
             post {
                 always {
-                    recordIssues tools: [flake8(pattern: 'reports/flake8-report.txt')], unstableTotalHigh: 8, failedTotalHigh: 10
+                    recordIssues tools: [flake8(pattern: 'reports/flake8-report.txt')], qualityGates: 
+                    [[threshold: 8, type: 'TOTAL', unstable: true],
+                    [threshold: 10, type: 'TOTAL', failure: true]
+                  ]                                                                      
                 }
             }
         }
@@ -66,7 +69,10 @@ pipeline {
             }
             post {
                 always {
-                    recordIssues tools: [sarif(pattern: 'reports/bandit-report.sarif')], unstableTotalAll: 2, failedTotalAll: 4
+                    recordIssues tools: [sarif(pattern: 'reports/bandit-report.sarif')], qualityGates: [
+                    [threshold: 2, type: 'TOTAL', unstable: true],
+                    [threshold: 4, type: 'TOTAL', failure: true]
+                 ]
                 }
             }
         }

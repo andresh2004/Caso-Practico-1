@@ -99,6 +99,13 @@ pipeline {
                         reportFiles: 'index.html',
                         reportName: 'Coverage Report'
                     ])
+                    recordCoverage(
+                      tools: [[parser: 'COBERTURA', pattern: 'coverage.xml']],
+                      qualityGates: [
+                      [threshold: 99.0, metric: 'LINE', baseline: 'PROJECT', criticality: 'NOTE'],
+                      [threshold: 60.0, metric: 'BRANCH', baseline: 'PROJECT', criticality: 'NOTE']
+                           ]
+                    )
                 
                 }
             }

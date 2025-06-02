@@ -66,7 +66,7 @@ pipeline {
                     echo CONTENIDO DE REPORTS:
                     dir reports
                     echo ========================
-                    type reports\\bandit-report.sarif                    
+                    type reports\\bandit-report.json                    
                 '''
             }
             post {

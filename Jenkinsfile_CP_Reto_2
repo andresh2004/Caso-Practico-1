@@ -61,17 +61,17 @@ pipeline {
                 bat '''
                     call venv\\Scripts\\activate
                     mkdir reports
-                    bandit -r app/ -f json -o reports\\bandit-report.json
+                    bandit -r app/ -f xml -o reports\\bandit-report.xml
                     echo ========================
                     echo CONTENIDO DE REPORTS:
                     dir reports
                     echo ========================
-                    type reports\\bandit-report.json                    
+                    type reports\\bandit-report.xml                    
                 '''
             }
             post {
                always {  
-                  recordIssues tools: [json(pattern: 'reports/bandit-report.json')]                            
+                  recordIssues tools: [checkStyle(pattern: 'reports/bandit-report.xml')]                            
                                                      
                 }
             }

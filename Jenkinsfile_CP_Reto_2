@@ -104,4 +104,4 @@ pipeline {
             junit testResults: 'reports/unit-test-results.xml', checksName: ''
         }
     }
-}
+

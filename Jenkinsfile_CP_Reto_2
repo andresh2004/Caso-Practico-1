@@ -99,6 +99,14 @@ pipeline {
                         reportFiles: 'index.html',
                         reportName: 'Coverage Report'
                     ])
+                    recordCoverage tools: [cobertura(pattern: 'coverage.xml')],
+                       sourceFileResolver: 'NEVER_STORE',
+                       qualityGates: [
+                           [threshold: 85, type: 'LINE', unstable: true],
+                           [threshold: 95, type: 'LINE', failure: true],
+                           [threshold: 80, type: 'BRANCH', unstable: true],
+                           [threshold: 90, type: 'BRANCH', failure: true]
+                            ]
                 }
             }
         }

@@ -61,8 +61,12 @@ pipeline {
                 bat '''
                     call venv\\Scripts\\activate
                     mkdir reports
-                    venv\\Scripts\\bandit -r app/ -f sarif -o reports\\bandit-report.sarif || exit 0
+                    bandit -r app/ -f sarif -o reports\\bandit-report.sarif
+                    echo ========================
+                    echo CONTENIDO DE REPORTS:
                     dir reports
+                    echo ========================
+                    type reports\\bandit-report.sarif                    
                 '''
             }
             post {

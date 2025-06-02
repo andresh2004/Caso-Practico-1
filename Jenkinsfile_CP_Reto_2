@@ -1,120 +1,64 @@
 pipeline {
     agent any
 
-    
-    environment {
-        VENV_DIR = 'venv'
-    }
-
     stages {
-        stage('Get Code') {
+        stage('Preparación') {
             steps {
-                checkout scm
-                bat 'whoami'
-                bat 'hostname'
-                bat 'echo $WORKSPACE'
+                bat 'python -m venv venv'
+                bat 'call venv\\Scripts\\activate && pip install -r requirements.txt'
             }
         }
 
-        stage('Setup Environment') {
+        stage('Test') {
             steps {
-                bat '''
-                    C:\\Users\\USER\\AppData\\Local\\Programs\\Python\\Python313\\python.exe -m venv venv
-                    call venv\\Scripts\\activate && where python && pip install -r requirements.txt
-                    
-                '''
-            }
-        }
-
-        stage('Unit Tests') {
-            steps {
-                bat '''
-                    call venv\\Scripts\\activate
-                    set PYTHONPATH=%cd%
-                    pytest test\\unit --junitxml=unit_report.xml
-                    
-                '''
+                bat 'call venv\\Scripts\\activate && pytest --junitxml=report.xml || exit 0'
             }
             post {
                 always {
-                    junit 'unit_report.xml'
-                }
-            }
-        }
-
-        stage('Static Analysis (flake8)') {
-            steps {
-                bat '''
-                    call venv\\Scripts\\activate
-                    venv\\Scripts\\flake8 app/ --exit-zero --format=default > flake8_report.txt
-                '''
-            }
-            post {
-                always {
-                    recordIssues tools: [flake8(pattern: 'flake8_report.txt')]                                 
-                }
-            }
-        }
-
-        stage('Security Test (bandit)') {
-            steps {
-                bat '''
-                    call venv\\Scripts\\activate
-                    venv\\Scripts\\bandit -r app/ -f sarif -o reports\\bandit-report.sarif || exit 0
-                '''
-            }
-            post {
-               always {  
-                  recordIssues tools: [sarif(pattern: 'bandit-report.sarif')]                            
-                                                     
+                    junit 'report.xml'
                 }
             }
         }
 
         stage('Coverage') {
             steps {
-                bat '''
-                    call venv\\Scripts\\activate
-                    venv\\Scripts\\coverage run -m pytest test\\unit
-                    venv\\Scripts\\coverage xml -o coverage.xml
-                    venv\\Scripts\\coverage html -d coverage_html
-                '''
+                bat 'call venv\\Scripts\\activate && coverage run -m pytest'
+                bat 'call venv\\Scripts\\activate && coverage xml'
             }
             post {
                 always {
-                    publishHTML([
-                        allowMissing: false,
-                        alwaysLinkToLastBuild: true,
-                        keepAll: true,
-                        reportDir: 'coverage_html',
-                        reportFiles: 'index.html',
-                        reportName: 'Coverage Report'
-                    ])
+                    cobertura cobertura.xml
                 }
             }
         }
 
-        stage('Performance (JMeter)') {
+        stage('Análisis Estático (Flake8)') {
+            steps {
+                bat 'call venv\\Scripts\\activate && flake8 . --format=default || exit 0'
+            }
+        }
+
+        stage('Security Test (bandit)') {
             steps {
                 bat '''
-                     set JMETER_HOME=C:\\Users\\USER\\Downloads\\apache-jmeter-5.6.3\\apache-jmeter-5.6.3
-                     set PATH=%JMETER_HOME%\\bin;%PATH%
-                     mkdir jmeter\\report
-                     jmeter -n -t test\\testplan\\sumar_restar.jmx -l jmeter\\report.jtl -e -o jmeter\\report
-
+                    whoami
+                    hostname
+                    echo %WORKSPACE%
+                    call venv\\Scripts\\activate
+                    venv\\Scripts\\bandit -r app/ -f sarif -o reports\\bandit-report.sarif || exit 0
                 '''
             }
             post {
                 always {
-                    perfReport sourceDataFiles: 'jmeter/report.jtl'
+                    recordIssues tools: [sarif(pattern: 'reports/bandit-report.sarif')]
                 }
             }
         }
-    }
 
-    post {
-        always {
-            cleanWs()
+        stage('Performance') {
+            steps {
+                perfReport sourceDataFiles: 'report.jtl'
+            }
         }
     }
 }

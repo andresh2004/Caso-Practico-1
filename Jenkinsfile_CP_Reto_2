@@ -1,5 +1,4 @@
 pipeline {
-<<<<<<< Updated upstream
     agent any
 
     
@@ -23,55 +22,17 @@ pipeline {
                     C:\\Users\\USER\\AppData\\Local\\Programs\\Python\\Python313\\python.exe -m venv venv
                     call venv\\Scripts\\activate && where python && pip install -r requirements.txt
                     
-=======
-    agent none
-
-    environment {
-        VENV_DIR = 'venv'
-        PYTHON_EXE = 'C:\\Users\\USER\\AppData\\Local\\Programs\\Python\\Python313\\python.exe'
-    }
-
-    stages {
-        stage('Checkout') {
-            agent { label 'build-agent' }
-            steps {
-                bat 'whoami'
-                bat 'hostname'
-                bat 'echo %WORKSPACE%'
-                checkout scm
-            }
-        }
-
-        stage('Setup Virtualenv') {
-            agent { label 'build-agent' }
-            steps {
-                bat '''
-                    %PYTHON_EXE% -m venv venv
-                    call venv\\Scripts\\activate && where python && pip install -r requirements.txt
->>>>>>> Stashed changes
                 '''
             }
         }
 
         stage('Unit Tests') {
-<<<<<<< Updated upstream
             steps {
                 bat '''
                     call venv\\Scripts\\activate
                     set PYTHONPATH=%cd%
                     pytest test\\unit --junitxml=unit_report.xml
                     
-=======
-            agent { label 'test-agent' }
-            steps {
-                bat '''
-                    whoami
-                    hostname
-                    echo %WORKSPACE%
-                    call venv\\Scripts\\activate
-                    set PYTHONPATH=%cd%
-                    pytest test\\unit --junitxml=unit_report.xml
->>>>>>> Stashed changes
                 '''
             }
             post {
@@ -82,17 +43,8 @@ pipeline {
         }
 
         stage('Static Analysis (flake8)') {
-<<<<<<< Updated upstream
             steps {
                 bat '''
-=======
-            agent { label 'test-agent' }
-            steps {
-                bat '''
-                    whoami
-                    hostname
-                    echo %WORKSPACE%
->>>>>>> Stashed changes
                     call venv\\Scripts\\activate
                     venv\\Scripts\\flake8 app/ --exit-zero --format=default > flake8_report.txt
                 '''
@@ -105,46 +57,23 @@ pipeline {
         }
 
         stage('Security Test (bandit)') {
-<<<<<<< Updated upstream
             steps {
                 bat '''
-=======
-            agent { label 'test-agent' }
-            steps {
-                bat '''
-                    whoami
-                    hostname
-                    echo %WORKSPACE%
-                    mkdir reports
->>>>>>> Stashed changes
                     call venv\\Scripts\\activate
                     venv\\Scripts\\bandit -r app/ -f sarif -o reports\\bandit-report.sarif || exit 0
                 '''
             }
             post {
                always {  
-<<<<<<< Updated upstream
                   recordIssues tools: [sarif(pattern: 'bandit-report.sarif')]                            
                                                      
-=======
-                  recordIssues tools: [sarif(pattern: 'reports/bandit-report.sarif')]                                                  
->>>>>>> Stashed changes
                 }
             }
         }
 
         stage('Coverage') {
-<<<<<<< Updated upstream
             steps {
                 bat '''
-=======
-            agent { label 'test-agent' }
-            steps {
-                bat '''
-                    whoami
-                    hostname
-                    echo %WORKSPACE%
->>>>>>> Stashed changes
                     call venv\\Scripts\\activate
                     venv\\Scripts\\coverage run -m pytest test\\unit
                     venv\\Scripts\\coverage xml -o coverage.xml
@@ -166,7 +95,6 @@ pipeline {
         }
 
         stage('Performance (JMeter)') {
-<<<<<<< Updated upstream
             steps {
                 bat '''
                      set JMETER_HOME=C:\\Users\\USER\\Downloads\\apache-jmeter-5.6.3\\apache-jmeter-5.6.3
@@ -174,20 +102,6 @@ pipeline {
                      mkdir jmeter\\report
                      jmeter -n -t test\\testplan\\sumar_restar.jmx -l jmeter\\report.jtl -e -o jmeter\\report
 
-=======
-            agent { label 'test-agent' }
-            steps {
-                bat '''
-                    whoami
-                    hostname
-                    echo %WORKSPACE%
-                    set JMETER_HOME=C:\\Users\\USER\\Downloads\\apache-jmeter-5.6.3\\apache-jmeter-5.6.3
-                    set PATH=%JMETER_HOME%\\bin;%PATH%
-                    del /q jmeter\\report.jtl
-                    rmdir /s /q jmeter\\report
-                    mkdir jmeter\\report
-                    jmeter -n -t test\\testplan\\sumar_restar.jmx -l jmeter\\report.jtl -e -o jmeter\\report
->>>>>>> Stashed changes
                 '''
             }
             post {
@@ -196,32 +110,10 @@ pipeline {
                 }
             }
         }
-<<<<<<< Updated upstream
-=======
-
-        stage('Deploy Simulado') {
-            agent { label 'deploy-agent' }
-            steps {
-                bat '''
-                    whoami
-                    hostname
-                    echo %WORKSPACE%
-                    echo Simulando despliegue final...
-                    ping 127.0.0.1 -n 3 > nul
-                '''
-            }
-        }
->>>>>>> Stashed changes
     }
 
     post {
         always {
-<<<<<<< Updated upstream
             cleanWs()
-=======
-            node('build-agent') {
-                 cleanWs()
-            }     
->>>>>>> Stashed changes
         }
     }

@@ -111,7 +111,7 @@ pipeline {
             }
             post {
                 always {
-                    junit testResults: 'reports/unit-test-results.xml', checksName: ''
+                    perfReport sourceDataFiles: 'jmeter\\report.jtl'
                 }
             }
         }

@@ -4,46 +4,63 @@ pipeline {
     stages {
         stage('Preparación') {
             steps {
-                bat 'python -m venv venv'
-                bat 'call venv\\Scripts\\activate && pip install -r requirements.txt'
+                bat '''
+                    C:\\Users\\user\\AppData\\Local\\Programs\\Python\\Python313\\python.exe -m venv venv
+                    call venv\\Scripts\\activate
+                    pip install -r requirements.txt
+                '''
             }
         }
 
         stage('Test') {
             steps {
-                bat 'call venv\\Scripts\\activate && pytest --junitxml=report.xml || exit 0'
+                bat '''
+                    call venv\\Scripts\\activate
+                    pytest --junitxml=reports\\test-results.xml || exit 0
+                '''
             }
             post {
                 always {
-                    junit 'report.xml'
+                    junit 'reports/test-results.xml'
                 }
             }
         }
 
         stage('Coverage') {
             steps {
-                bat 'call venv\\Scripts\\activate && coverage run -m pytest'
-                bat 'call venv\\Scripts\\activate && coverage xml'
+                bat '''
+                    call venv\\Scripts\\activate
+                    coverage run -m pytest || exit 0
+                    coverage xml -o reports\\coverage.xml
+                '''
             }
             post {
                 always {
-                    cobertura cobertura.xml
+                    recordCoverage tools: [cobertura(pattern: 'reports/coverage.xml')]
                 }
             }
         }
 
         stage('Análisis Estático (Flake8)') {
             steps {
-                bat 'call venv\\Scripts\\activate && flake8 . --format=default || exit 0'
+                bat '''
+                    call venv\\Scripts\\activate
+                    flake8 . --format=xml --output-file=reports\\flake8-report.xml || exit 0
+                '''
+            }
+            post {
+                always {
+                    recordIssues tools: [flake8(pattern: 'reports/flake8-report.xml')], qualityGates: [
+                        [threshold: 8, type: 'TOTAL', unstable: true],
+                        [threshold: 10, type: 'TOTAL', failure: true]
+                    ]
+                }
             }
         }
 
         stage('Security Test (bandit)') {
             steps {
                 bat '''
-                    whoami
-                    hostname
-                    echo %WORKSPACE%
                     mkdir reports
                     call venv\\Scripts\\activate
                     venv\\Scripts\\bandit -r app/ -f sarif -o reports\\bandit-report.sarif || exit 0
@@ -51,14 +68,26 @@ pipeline {
             }
             post {
                 always {
-                    recordIssues tools: [sarif(pattern: 'reports/bandit-report.sarif')]
+                    recordIssues tools: [sarif(pattern: 'reports/bandit-report.sarif')], qualityGates: [
+                        [threshold: 2, type: 'TOTAL', unstable: true],
+                        [threshold: 4, type: 'TOTAL', failure: true]
+                    ]
                 }
             }
         }
 
         stage('Performance') {
             steps {
-                perfReport sourceDataFiles: 'report.jtl'
+                bat '''
+                    call venv\\Scripts\\activate
+                    mkdir reports
+                    jmeter -n -t test.jmx -l reports\\report.jtl -e -o reports\\dashboard || exit 0
+                '''
+            }
+            post {
+                always {
+                    publishPerformanceReport sourceDataFiles: 'reports/report.jtl'
+                }
             }
         }
     }

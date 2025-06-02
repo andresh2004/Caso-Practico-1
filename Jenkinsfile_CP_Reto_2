@@ -72,13 +72,11 @@ pipeline {
             post {
                always {  
                   recordIssues tools: [pyLint(pattern: 'reports/bandit-report.txt')
-                    
                     ]                            
-                  qualityGates: [
-                   [threshold: 1, type: 'TOTAL', unstable: true],   // Marcar como UNSTABLE si hay al menos 1 issue
-                   [threshold: 5, type: 'TOTAL', failure: true]     // Marcar como FAILURE si hay más de 5   
-
-                   ]                               
+                       qualityGates: [
+                         [threshold: 1, type: 'TOTAL', unstable: true],   // Marcar como UNSTABLE si hay al menos 1 issue
+                         [threshold: 5, type: 'TOTAL', failure: true]     // Marcar como FAILURE si hay más de 5  
+                        ]                               
                 }
             }
         }

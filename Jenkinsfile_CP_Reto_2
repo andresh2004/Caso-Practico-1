@@ -61,17 +61,23 @@ pipeline {
                 bat '''
                     call venv\\Scripts\\activate
                     mkdir reports
-                    bandit -r app/ -f xml -o reports\\bandit-report.xml
+                    bandit -r app/ -f txt -o reports\\bandit-report.txt
                     echo ========================
                     echo CONTENIDO DE REPORTS:
                     dir reports
                     echo ========================
-                    type reports\\bandit-report.xml                    
+                    type reports\\bandit-report.txt                    
                 '''
             }
             post {
                always {  
-                  recordIssues tools: [checkStyle(pattern: 'reports/bandit-report.xml')]                            
+                  recordIssues tools: [genericParser(   
+                            pattern: 'reports/bandit-report.txt',
+                            name: 'Bandit Security Scan',
+                            regexp: '^(?P<file>[^:]+):(?P<line>\\d+): (?P<message>.*)$',
+                            example: 'app/main.py:10: [B101] Use of assert detected. The enclosed code will be removed when compiling to optimised byte code.',
+                            script: [parserScriptHere] // opcional si defines lógica adicional)
+                            ]                            
                                                      
                 }
             }

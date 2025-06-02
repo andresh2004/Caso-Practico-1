@@ -19,7 +19,7 @@ pipeline {
                     echo ========================
                     python --version
                     python -m venv %VENV_PATH%
-                    call %VENV_PATH%\Scripts\activate
+                    call %VENV_PATH%\\Scripts\\activate
                     pip install --upgrade pip
                     pip install -r requirements.txt
                 '''
@@ -28,26 +28,26 @@ pipeline {
         stage('Test') {
             steps {
                 bat '''
-                    call %VENV_PATH%\Scripts\activate
+                    call %VENV_PATH%\\Scripts\\activate
                     mkdir %REPORTS_DIR%
-                    pytest --junitxml=%REPORTS_DIR%\unit-test-results.xml || exit 0
+                    pytest --junitxml=%REPORTS_DIR%\\unit-test-results.xml || exit 0
                 '''
             }
         }
         stage('Coverage') {
             steps {
                 bat '''
-                    call %VENV_PATH%\Scripts\activate
+                    call %VENV_PATH%\\Scripts\\activate
                     coverage run -m pytest || exit 0
-                    coverage xml -o %REPORTS_DIR%\coverage.xml
+                    coverage xml -o %REPORTS_DIR%\\coverage.xml
                 '''
             }
         }
         stage('Análisis Estático (Flake8)') {
             steps {
                 bat '''
-                    call %VENV_PATH%\Scripts\activate
-                    flake8 --format=default app/ > %REPORTS_DIR%\flake8-report.txt || exit 0
+                    call %VENV_PATH%\\Scripts\\activate
+                    flake8 --format=default app/ > %REPORTS_DIR%\\flake8-report.txt || exit 0
                 '''
             }
             post {
@@ -59,9 +59,9 @@ pipeline {
         stage('Security Test (bandit)') {
             steps {
                 bat '''
-                    call %VENV_PATH%\Scripts\activate
+                    call %VENV_PATH%\\Scripts\\activate
                     mkdir %REPORTS_DIR%
-                    bandit -r app/ -f sarif -o %REPORTS_DIR%\bandit-report.sarif || exit 0
+                    bandit -r app/ -f sarif -o %REPORTS_DIR%\\bandit-report.sarif || exit 0
                 '''
             }
             post {
@@ -73,8 +73,8 @@ pipeline {
         stage('Performance') {
             steps {
                 bat '''
-                    call %VENV_PATH%\Scripts\activate
-                    jmeter -n -t performance/test.jmx -l %REPORTS_DIR%\report.jtl -e -o %REPORTS_DIR%\dashboard || exit 0
+                    call %VENV_PATH%\\Scripts\\activate
+                    jmeter -n -t performance/test.jmx -l %REPORTS_DIR%\\report.jtl -e -o %REPORTS_DIR%\\dashboard || exit 0
                 '''
             }
         }

@@ -31,11 +31,12 @@ pipeline {
               bat '''
                 call %VENV_PATH%\\Scripts\\activate
                 pytest --junitxml=reports\\unit-test-results.xml || exit 0
-            '''
+               '''
             }
             post {
               always {
              junit testResults: 'reports/unit-test-results.xml'
+                 }
             }
         }
         stage('Coverage') {

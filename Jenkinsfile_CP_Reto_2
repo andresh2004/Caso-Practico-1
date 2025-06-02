@@ -75,10 +75,8 @@ pipeline {
                               pattern: 'reports/bandit-report.txt',
                             name: 'Bandit Security Scan',
                             regexp: '^(?P<file>[^:]+):(?P<line>\\d+): (?P<message>.*)$',
-                            example: 'app/main.py:10: [B101] Use of assert detected. The enclosed code will be removed when compiling to optimised byte code.',
-                            script: [parserScriptHere] // opcional si defines lógica adicional
-                  )
-                            ]                            
+                          )
+                    ]                            
                                                      
                 }
             }

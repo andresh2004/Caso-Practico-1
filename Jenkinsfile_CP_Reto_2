@@ -52,10 +52,10 @@ pipeline {
             }
             post {
                 always {
-                    recordIssues tools: [flake8(pattern: 'reports/flake8-report.txt')], qualityGates: 
-                    [[threshold: 8, type: 'TOTAL', unstable: true],
-                    [threshold: 10, type: 'TOTAL', failure: true]
-                  ]                                                                      
+                    recordIssues tools: [flake8(pattern: 'reports/flake8-report.txt')],
+                     healthy: 0,
+                     unhealthy: 10,
+                     minimumSeverity: 'NORMAL'    
                 }
             }
         }

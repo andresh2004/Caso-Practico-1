@@ -99,7 +99,7 @@ pipeline {
                         reportFiles: 'index.html',
                         reportName: 'Coverage Report'
                     ])
-                    recordCoverage tools: [cobertura(pattern: 'coverage.xml')],
+                    recordCoverage tools: [jacoco(pattern: 'coverage.xml')],
                           qualityGates: [
                            [threshold: 85, type: 'LINE', unstable: true],
                            [threshold: 95, type: 'LINE', failure: true],
